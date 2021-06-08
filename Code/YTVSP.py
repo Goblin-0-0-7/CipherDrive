@@ -1,4 +1,4 @@
-#Youtube Video Saver Plugin
+#Youtube Content Saver Plugin
 import os
 from moviepy.video.io.VideoFileClip import VideoFileClip
 import pytube 
