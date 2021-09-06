@@ -41,7 +41,7 @@ def downloadVideo(links: list, save_directory: str):
         while True:
             try:
                 video = YouTube(link)
-                video_title = video.title
+                video_title = safe_filename(video.title)
                 stream = video.streams
                 video_stream = stream.get_highest_resolution()
                 #create a save for saving video title
@@ -49,7 +49,7 @@ def downloadVideo(links: list, save_directory: str):
                     video_savenames.append(str(list_number) + " " + video_title)
                 else:
                     video_savenames.append(video_title)
-                video_path = video_stream.download(save_directory, video_savenames[list_itemcounter], skip_existing=True)
+                video_path = video_stream.download(save_directory, video_savenames[list_itemcounter] + ".mp4", skip_existing=True)
                 video_paths.append(video_path)
             except pytube.exceptions.VideoUnavailable:
                 print("Video is regional unavailable")
@@ -97,7 +97,7 @@ elif playlist_flag:
     playlist = Playlist(url)
     playlist_title = playlist.title
     #create playlist directory
-    playlist_directory = directory + "/" + playlist_title + "/"
+    playlist_directory = directory + "/" + playlist_title
     if not os.path.exists(playlist_directory):
         os.makedirs(playlist_directory)
     #create video directory
