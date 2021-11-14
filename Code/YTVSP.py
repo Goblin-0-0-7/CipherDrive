@@ -1,7 +1,6 @@
 #Youtube Content Saver Plugin
-import os
+import pytube, os, glob
 from moviepy.video.io.VideoFileClip import VideoFileClip
-import pytube 
 from pytube import Playlist, YouTube
 from pytube.helpers import safe_filename
 from waiting import wait
@@ -11,6 +10,10 @@ video_flag = False
 video_paths = []
 video_savenames = []
 video_urls = []
+
+#settings
+download_video = True
+download_audio = True
 
 #Playlist-ID input
 url = input("Enter a video or playlist url: ")
@@ -33,6 +36,30 @@ if not directory:
     print("You did not enter a directory")
     quit()
 
+#choose to download video
+choice = input("Download video? (y/n): ")
+if choice == "y":
+    download_video = True
+elif choice == "n":
+    download_video = False
+else:
+    print(f"Default video download is set to {download_video}")
+choice = None
+
+#choose to download audio
+choice = input("Download audio? (y/n): ")
+if choice == "y":
+    download_audio = True
+elif choice == "n":
+    download_audio = False
+else:
+    print(f"Default audio download is set to {download_audio}")
+choice = None
+
+#check if eather video or audio should be downloaded
+if not (download_video or download_audio):
+    print("What do you even want?!")
+    quit()
 
 #check if link is video or playlist
 if "watch" in url:
@@ -54,7 +81,7 @@ def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlis
                 video_title = safe_filename(video.title)
                 stream = video.streams
                 video_stream = stream.get_highest_resolution()
-                #create a save for saving video title
+                #create a save video title for saving
                 if list_number:
                     video_savenames.append(str(list_number) + " " + video_title)
                 else:
@@ -69,7 +96,37 @@ def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlis
                 continue
             break
         list_itemcounter += 1
-        
+"""
+def downloadAudio(links: list, save_directory: str, startpoint: int = 0, playlist_lenght: int = 1):
+    list_number = startpoint
+    list_itemcounter = 0
+    for x in range(startpoint ,playlist_lenght):
+        list_number += 1
+        print(links[x])
+        print("Currently working on: " + str(list_number) + "/" + str(len(links)))
+        #try downloading until it works (to catch some occurring connection errors)
+        while True:
+            try:
+                video = YouTube(links[x])
+                video_title = safe_filename(video.title)
+                stream = video.streams
+                video_stream = stream.get_audio_only()
+                #create a save video title for saving
+                if list_number:
+                    video_savenames.append(str(list_number) + " " + video_title)
+                else:
+                    video_savenames.append(video_title)
+                video_path = video_stream.download(save_directory, video_savenames[list_itemcounter] + ".mp4", skip_existing=True)
+                video_paths.append(video_path)
+            except pytube.exceptions.VideoUnavailable:
+                print("Video is regional unavailable")
+                break
+            except Exception as e:
+                print(e)
+                continue
+            break
+        list_itemcounter += 1
+"""        
 
 def convertVideo(links: list, paths: list, titles: list, save_directory:str, startpoint: int = 0, playlist_length: int = 1):
     list_itemcounter = 0
@@ -87,6 +144,15 @@ def convertVideo(links: list, paths: list, titles: list, save_directory:str, sta
                 mp4_vid.audio.write_audiofile(os.path.join(audio_directory, save_video_title + ".mp3"))
         list_itemcounter += 1
 
+def deleteMP4(del_directory):
+    for file in glob.glob(os.path.join(del_directory, "*.mp4")):
+        try:
+            os.remove(file)
+        except Exception as e:
+            print(f"{file} could not be deleted")
+            print(e)
+            pass
+
 #case: is video
 if video_flag:
     #get video title
@@ -96,17 +162,26 @@ if video_flag:
     video_folder_directory = directory + "/" + video_title
     if not os.path.exists(video_folder_directory):
         os.makedirs(video_folder_directory)
-    #create video directory
-    video_directory = video_folder_directory + "/" + video_title + "(Video)" + "/"
-    if not os.path.exists(video_directory):
-        os.makedirs(video_directory)
-    #create audio directory
-    audio_directory = video_folder_directory + "/" + video_title + "(Audio)" + "/"
-    if not os.path.exists(audio_directory):
-        os.makedirs(audio_directory)
+    if download_video:
+        #create video directory
+        video_directory = video_folder_directory + "/" + video_title + "(Video)" + "/"
+        if not os.path.exists(video_directory):
+            os.makedirs(video_directory)
+    if download_audio:
+        #create audio directory
+        audio_directory = video_folder_directory + "/" + video_title + "(Audio)" + "/"
+        if not os.path.exists(audio_directory):
+            os.makedirs(audio_directory)
     video_urls.append(url)
-    downloadVideo(video_urls, video_directory)
-    convertVideo(video_urls, video_paths, video_savenames, audio_directory)    
+    if download_video and download_audio:
+        downloadVideo(video_urls, video_directory)
+        convertVideo(video_urls, video_paths, video_savenames, audio_directory)
+    elif download_video:
+        downloadVideo(video_urls, video_directory)
+    elif download_audio:
+        downloadVideo(video_urls, audio_directory)
+        convertVideo(video_urls, video_paths, video_savenames, audio_directory)
+        deleteMP4(audio_directory)
 
 #case: is playlist
 elif playlist_flag:
@@ -117,28 +192,36 @@ elif playlist_flag:
     playlist_directory = directory + "/" + playlist_title
     if not os.path.exists(playlist_directory):
         os.makedirs(playlist_directory)
-    #create video directory
-    video_directory = playlist_directory + "/" + playlist_title + " (Video)" + "/"
-    if not os.path.exists(video_directory):
-        os.makedirs(video_directory)
-    #create audio directory
-    audio_directory = playlist_directory + "/" + playlist_title + " (Audio)" + "/"
-    if not os.path.exists(audio_directory):
-        os.makedirs(audio_directory)
+    if download_video:
+        #create video directory
+        video_directory = playlist_directory + "/" + playlist_title + " (Video)" + "/"
+        if not os.path.exists(video_directory):
+            os.makedirs(video_directory)
+    if download_audio:
+        #create audio directory
+        audio_directory = playlist_directory + "/" + playlist_title + " (Audio)" + "/"
+        if not os.path.exists(audio_directory):
+            os.makedirs(audio_directory)
 
     try:
         playlist_itemcount = playlist.length
         #gives error if playlist has only one video
     except:
         playlist_itemcount = 1
-    video_number = 0 
     video_urls = playlist.video_urls
-    downloadVideo(video_urls, video_directory, first_video, playlist_itemcount)
-    convertVideo(video_urls, video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
+    if download_video and download_audio:
+        downloadVideo(video_urls, video_directory, first_video, playlist_itemcount)
+        convertVideo(video_urls, video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
+    elif download_video:
+        downloadVideo(video_urls, video_directory, first_video, playlist_itemcount)
+    elif download_audio:
+        downloadVideo(video_urls, audio_directory, first_video, playlist_itemcount)
+        convertVideo(video_urls, video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
+        deleteMP4(audio_directory)
     
     print('Playlist has been saved with ' + str(playlist_itemcount) + ' entries')
 
 else:
-    print("Links was not a downloadable source")
+    print("Link was not a downloadable source")
 
 
