@@ -17,6 +17,15 @@ url = input("Enter a video or playlist url: ")
 if not url:
     print("You did not enter a video or playlist url")
     quit()
+
+#video number from which to start
+try:
+    first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
+except:
+    first_video = None
+if not first_video:
+    print("No input given, download starts from first entry")
+    first_video = 0
     
 #Directory input
 directory = input("Enter file directory: ")
@@ -24,23 +33,24 @@ if not directory:
     print("You did not enter a directory")
     quit()
 
+
 #check if link is video or playlist
 if "watch" in url:
     video_flag = True
 if "playlist" in url:
     playlist_flag = True
 
-def downloadVideo(links: list, save_directory: str):
-    list_number = 0
+def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlist_lenght: int = 1):
+    list_number = startpoint
     list_itemcounter = 0
-    for link in links:
+    for x in range(startpoint ,playlist_lenght):
         list_number += 1
-        print(link)
+        print(links[x])
         print("Currently working on: " + str(list_number) + "/" + str(len(links)))
         #try downloading until it works (to catch some occurring connection errors)
         while True:
             try:
-                video = YouTube(link)
+                video = YouTube(links[x])
                 video_title = safe_filename(video.title)
                 stream = video.streams
                 video_stream = stream.get_highest_resolution()
@@ -61,9 +71,9 @@ def downloadVideo(links: list, save_directory: str):
         list_itemcounter += 1
         
 
-def convertVideo(links: list, paths: list, titles: list, save_directory:str):
+def convertVideo(links: list, paths: list, titles: list, save_directory:str, startpoint: int = 0, playlist_length: int = 1):
     list_itemcounter = 0
-    for link in links:
+    for x in range(startpoint, playlist_length):
         #wait for video to be saved succesfully
         while True:
             try:
@@ -79,12 +89,19 @@ def convertVideo(links: list, paths: list, titles: list, save_directory:str):
 
 #case: is video
 if video_flag:
+    #get video title
+    video = YouTube(url)
+    video_title = safe_filename(video.title)
+    #creat folder for video
+    video_folder_directory = directory + "/" + video_title
+    if not os.path.exists(video_folder_directory):
+        os.makedirs(video_folder_directory)
     #create video directory
-    video_directory = directory
+    video_directory = video_folder_directory + "/" + video_title + "(Video)" + "/"
     if not os.path.exists(video_directory):
         os.makedirs(video_directory)
     #create audio directory
-    audio_directory = directory
+    audio_directory = video_folder_directory + "/" + video_title + "(Audio)" + "/"
     if not os.path.exists(audio_directory):
         os.makedirs(audio_directory)
     video_urls.append(url)
@@ -116,8 +133,8 @@ elif playlist_flag:
         playlist_itemcount = 1
     video_number = 0 
     video_urls = playlist.video_urls
-    downloadVideo(video_urls, video_directory)
-    convertVideo(video_urls, video_paths, video_savenames, audio_directory)
+    downloadVideo(video_urls, video_directory, first_video, playlist_itemcount)
+    convertVideo(video_urls, video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
     
     print('Playlist has been saved with ' + str(playlist_itemcount) + ' entries')
 
