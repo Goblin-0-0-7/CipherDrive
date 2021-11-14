@@ -19,7 +19,10 @@ if not url:
     quit()
 
 #video number from which to start
-first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
+try:
+    first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
+except:
+    first_video = None
 if not first_video:
     print("No input given, download starts from first entry")
     first_video = 0
@@ -39,8 +42,8 @@ if "playlist" in url:
 
 def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlist_lenght: int = 1):
     list_number = startpoint
-    list_itemcounter = startpoint
-    for x in range(startpoint ,playlist_lenght-1):
+    list_itemcounter = 0
+    for x in range(startpoint ,playlist_lenght):
         list_number += 1
         print(links[x])
         print("Currently working on: " + str(list_number) + "/" + str(len(links)))
@@ -69,7 +72,7 @@ def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlis
         
 
 def convertVideo(links: list, paths: list, titles: list, save_directory:str, startpoint: int = 0, playlist_length: int = 1):
-    list_itemcounter = startpoint
+    list_itemcounter = 0
     for x in range(startpoint, playlist_length):
         #wait for video to be saved succesfully
         while True:
@@ -86,12 +89,19 @@ def convertVideo(links: list, paths: list, titles: list, save_directory:str, sta
 
 #case: is video
 if video_flag:
+    #get video title
+    video = YouTube(url)
+    video_title = safe_filename(video.title)
+    #creat folder for video
+    video_folder_directory = directory + "/" + video_title
+    if not os.path.exists(video_folder_directory):
+        os.makedirs(video_folder_directory)
     #create video directory
-    video_directory = directory
+    video_directory = video_folder_directory + "/" + video_title + "(Video)" + "/"
     if not os.path.exists(video_directory):
         os.makedirs(video_directory)
     #create audio directory
-    audio_directory = directory
+    audio_directory = video_folder_directory + "/" + video_title + "(Audio)" + "/"
     if not os.path.exists(audio_directory):
         os.makedirs(audio_directory)
     video_urls.append(url)
