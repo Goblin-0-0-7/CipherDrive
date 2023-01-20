@@ -1,5 +1,5 @@
 #Youtube Content Saver Plugin
-import pytube, os, glob
+import pytube, os, glob, sys
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pytube import Playlist, YouTube
 from pytube.helpers import safe_filename
@@ -16,20 +16,48 @@ download_video = True
 download_audio = True
 
 #Playlist-ID input
-url = input("Enter a video or playlist url: ")
+url = input("Enter a video or playlist URL: ")
 if not url:
-    print("You did not enter a video or playlist url")
+    print("You did not enter a video or playlist URL")
     quit()
 
-#video number from which to start
-try:
-    first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
-except:
-    first_video = None
-if not first_video:
-    print("No input given, download starts from first entry")
+#check if url is video or playlist and pick the video number from which to start
+if "playlist" in url:
+    playlist_flag = True
+    try:
+        first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
+    except:
+        first_video = None
+    if not first_video:
+        print("No input given, download starts from first entry")
+        first_video = 0
+elif "watch" in url and "list" in url: #probably not working, url not correct for downloading playlist
+    while True:
+        choice = input("Do you only want to download the video(v) or the playlist(p)?")
+        if choice == "v":
+            video_flag = True
+            first_video = 0
+            break
+        elif choice == "p":
+            playlist_flag = True
+            try:
+                first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
+            except:
+                first_video = None
+            if not first_video:
+                print("No input given, download starts from first entry")
+                first_video = 0
+            break
+        else:
+            print("Choice has to be between (v)video or (p)playlist")
+        choice = None
+elif "watch" in url and not "list" in url:
+    video_flag = True
     first_video = 0
-    
+else:
+    print("This is not a video or playlist URL")
+    quit()
+
 #Directory input
 directory = input("Enter file directory: ")
 if not directory:
@@ -61,11 +89,14 @@ if not (download_video or download_audio):
     print("What do you even want?!")
     quit()
 
-#check if link is video or playlist
-if "watch" in url:
-    video_flag = True
-if "playlist" in url:
-    playlist_flag = True
+def progress_function(vid, chunk, bytes_remaining):
+    filesize = vid.filesize
+    current = ((filesize - bytes_remaining)/filesize)
+    percent = ('{0:.1f}').format(current*100)
+    progress = int(50*current)
+    status = '█' * progress + '-' * (50 - progress)
+    sys.stdout.write(' ↳ |{bar}| {percent}%\r'.format(bar=status, percent=percent))
+    sys.stdout.flush()
 
 def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlist_lenght: int = 1):
     list_number = startpoint
@@ -89,10 +120,11 @@ def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlis
                 video_path = video_stream.download(save_directory, video_savenames[list_itemcounter] + ".mp4", skip_existing=True)
                 video_paths.append(video_path)
             except pytube.exceptions.VideoUnavailable:
-                print("Video is regional unavailable")
+                print("Video is regional unavailable") #occurs only when regional unavailable?
                 break
             except Exception as e:
                 print(e)
+                print("Error occured")
                 continue
             break
         list_itemcounter += 1
@@ -146,12 +178,15 @@ def convertVideo(links: list, paths: list, titles: list, save_directory:str, sta
 
 def deleteMP4(del_directory):
     for file in glob.glob(os.path.join(del_directory, "*.mp4")):
-        try:
-            os.remove(file)
-        except Exception as e:
-            print(f"{file} could not be deleted")
-            print(e)
-            pass
+        print(file) #check if path is choosen correctly
+        while True:
+            try:
+                os.remove(file)
+                break
+            except Exception as e:
+                print(f"{file} could not be deleted")
+                print(e)
+                pass
 
 #case: is video
 if video_flag:
@@ -222,6 +257,8 @@ elif playlist_flag:
     print('Playlist has been saved with ' + str(playlist_itemcount) + ' entries')
 
 else:
-    print("Link was not a downloadable source")
+    print("URL was not a downloadable source")
+
+print("Download finished")
 
 
