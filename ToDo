@@ -1,0 +1,17 @@
+BUGS:
+
+cant delete mp4 files:
+problem
+    -moviepy doesnt release video file
+solution
+    https://github.com/Zulko/moviepy/issues/810
+
+
+extracting video streams takes to long
+https://github.com/pytube/pytube/issues/1453
+
+progress of video
+https://stackoverflow.com/questions/49185538/how-to-add-progress-bar
+
+TESTS:
+seperation playlist-video-video in playlist not correct

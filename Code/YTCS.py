@@ -31,7 +31,7 @@ if "playlist" in url:
     if not first_video:
         print("No input given, download starts from first entry")
         first_video = 0
-elif "watch" in url and "list" in url: #probably not working, url not correct for downloading playlist
+elif "watch" in url and "list" in url:
     while True:
         choice = input("Do you only want to download the video(v) or the playlist(p)?")
         if choice == "v":
@@ -40,6 +40,7 @@ elif "watch" in url and "list" in url: #probably not working, url not correct fo
             break
         elif choice == "p":
             playlist_flag = True
+            url = "https://www.youtube.com/playlist?list=" + url.split("list=",1)[1] # takes the playlist id and appends it to a playlist link
             try:
                 first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
             except:
@@ -89,8 +90,8 @@ if not (download_video or download_audio):
     print("What do you even want?!")
     quit()
 
-def progress_function(vid, chunk, bytes_remaining):
-    filesize = vid.filesize
+def progress_function(stream, chunk, bytes_remaining):
+    filesize = stream.filesize
     current = ((filesize - bytes_remaining)/filesize)
     percent = ('{0:.1f}').format(current*100)
     progress = int(50*current)
@@ -108,7 +109,7 @@ def downloadVideo(links: list, save_directory: str, startpoint: int = 0, playlis
         #try downloading until it works (to catch some occurring connection errors)
         while True:
             try:
-                video = YouTube(links[x])
+                video = YouTube(links[x], on_progress_callback=progress_function)
                 video_title = safe_filename(video.title)
                 stream = video.streams
                 video_stream = stream.get_highest_resolution()
@@ -259,6 +260,6 @@ elif playlist_flag:
 else:
     print("URL was not a downloadable source")
 
-print("Download finished")
+print("Download finished!")
 
 
