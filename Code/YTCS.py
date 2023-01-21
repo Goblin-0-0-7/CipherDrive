@@ -4,6 +4,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from pytube import Playlist, YouTube
 from pytube.helpers import safe_filename
 from waiting import wait
+import time
 
 playlist_flag = False
 video_flag = False
@@ -33,14 +34,14 @@ if "playlist" in url:
         first_video = 0
 elif "watch" in url and "list" in url:
     while True:
-        choice = input("Do you only want to download the video(v) or the playlist(p)?")
+        choice = input("Do you only want to download the video(v) or the playlist(p)?: ")
         if choice == "v":
             video_flag = True
             first_video = 0
             break
         elif choice == "p":
             playlist_flag = True
-            url = "https://www.youtube.com/playlist?list=" + url.split("list=",1)[1] # takes the playlist id and appends it to a playlist link
+            url = "https://www.youtube.com/playlist?list=" + url.split("list=",1)[1].split("&index",1)[0] # takes the playlist id and appends it to a playlist link
             try:
                 first_video = int(input("Enter a number from which playlist entry to start: ")) - 1
             except:
@@ -50,7 +51,7 @@ elif "watch" in url and "list" in url:
                 first_video = 0
             break
         else:
-            print("Choice has to be between (v)video or (p)playlist")
+            print("Choice has to be between (v)video or (p)playlist: ")
         choice = None
 elif "watch" in url and not "list" in url:
     video_flag = True
@@ -175,6 +176,7 @@ def convertVideo(links: list, paths: list, titles: list, save_directory:str, sta
         if not os.path.isfile(os.path.join(save_directory, save_video_title + ".mp3")):
                 mp4_vid = VideoFileClip(paths[list_itemcounter])        
                 mp4_vid.audio.write_audiofile(os.path.join(audio_directory, save_video_title + ".mp3"))
+                mp4_vid.close()
         list_itemcounter += 1
 
 def deleteMP4(del_directory):
@@ -188,6 +190,8 @@ def deleteMP4(del_directory):
                 print(f"{file} could not be deleted")
                 print(e)
                 pass
+
+start_time = time.time()
 
 #case: is video
 if video_flag:
@@ -260,6 +264,6 @@ elif playlist_flag:
 else:
     print("URL was not a downloadable source")
 
-print("Download finished!")
-
-
+delta_time = time.time() - start_time
+delta_time_formated = time.strftime("%H:%M:%S", time.gmtime(delta_time))
+print(f"Download finished in {delta_time_formated}!")
