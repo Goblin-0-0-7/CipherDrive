@@ -3,6 +3,7 @@ import pytube, os, glob, sys
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pytube import Playlist, YouTube
 from pytube.helpers import safe_filename
+from pytube.exceptions import VideoPrivate
 from waiting import wait
 import time
 
@@ -227,7 +228,11 @@ if video_flag:
 elif playlist_flag:
     #get playlist title
     playlist = Playlist(url)
-    playlist_title = playlist.title
+    try:
+        playlist_title = playlist.title
+    except:
+        print("Can not access playlist. Check if playlist is set to private.")
+        quit()
     #create playlist directory
     playlist_directory = directory + "/" + playlist_title
     if not os.path.exists(playlist_directory):
