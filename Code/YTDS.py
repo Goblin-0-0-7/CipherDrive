@@ -1,6 +1,6 @@
 import math
 from threading import Thread
-from Converter import Converter
+from Encrypter import Encrypter
 
 width = 1280
 height = 720
@@ -33,21 +33,23 @@ def stich(binary):
 
     chunks = [binary[i:i+chunk_data_size] for i in range(0, len(binary), chunk_data_size)] #seperates binary into equal chunks
     
-    converters = []
-    converter_threads = []
+    encrypters = []
+    encrypter_threads = []
     for index in range(threads):
-        new_converter = Converter(width, height, pix_size)
-        converters.append(new_converter)
-        new_converter_thread = Thread(target= new_converter.standby, args=( ))
-        new_converter_thread.start()
-        converter_threads.append(new_converter_thread)
+        new_encrypter = Encrypter(width, height, pix_size)
+        encrypters.append(new_encrypter)
+        new_encrypter_thread = Thread(target= new_encrypter.standby, args=( ))
+        new_encrypter_thread.start()
+        encrypter_threads.append(new_encrypter_thread)
 
     for index in range(len(chunks)):
-        converters[index].run(chunks[index], index)
+        encrypters[index].run(chunks[index], index)
 
-bytes = rip_bytes("YoutubeDataSaverTestFile.txt")
+bytes = rip_bytes("triumph.txt")
 binary = (rip_binary(bytes))
 stich(binary)
+
+print(binary)
 
 """for i in range(0, len(binary), 8):
     print (chr(int(binary[i:i+8], 2)))"""
