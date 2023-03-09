@@ -11,7 +11,7 @@ height = 720
 pix_size = 2
 fps = 1
 threads = 8
-file = "triumph.txt"
+file = "Cube.jpg"
 
 file_name = file.split(".")[0]
 

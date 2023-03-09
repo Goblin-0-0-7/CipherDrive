@@ -4,10 +4,11 @@ import cv2
 #get those in first frame
 width = 1280
 height = 720
-binary_lenght = 18 * 8
+byte_length = 69515
+binary_length = byte_length * 8
 pix_size = 2
 err = 30
-video_dir = "triumph.avi"
+video_dir = "Cube.avi"
 
 
 
@@ -19,7 +20,7 @@ def read_img(frame):
     binary_index = 0
     for y in range(0, data_height):
         for x in range(0, data_width):
-            if binary_index < binary_lenght:
+            if binary_index < binary_length:
                 #pixel = frame.getpixel((x*pix_size,y*pix_size)) #using  PIL Image
                 pixel = frame[y*pix_size, x*pix_size] #using openCV
 
@@ -48,8 +49,13 @@ while cap.isOpened():
         break
 
 
-print(data)
+byte_data = int(data, 2).to_bytes((len(data) + 7) // 8, byteorder='big')
+print(byte_data)
 
+with open('newfile.png', 'wb') as f:
+    f.write(byte_data)
+
+"""
 for i in range(0, len(data), 8):
     print (chr(int(data[i:i+8], 2)))
-        
+"""
