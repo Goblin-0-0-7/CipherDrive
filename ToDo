@@ -1,3 +1,14 @@
+YTDS:
+input diffentent settings
+add a switch between video and picture en/decode
+seperate ui from ripper
+
+save video as mp4 not avi
+
+
+read/write in 1==black and 1==white
+
+
 BUGS:
 
 extracting video streams takes to long

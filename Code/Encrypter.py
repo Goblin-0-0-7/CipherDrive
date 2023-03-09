@@ -2,10 +2,12 @@ from PIL import Image
 
 class Encrypter:
 
-    def __init__(self, width, height, pix_size):
+    def __init__(self, folder_dir, width, height, pix_size, index):
         self.width = width
         self.height = height
         self.pix_size = pix_size
+        self.index = index
+        self.folder_dir = folder_dir
 
     def standby(self):
         self.standby = True
@@ -28,4 +30,4 @@ class Encrypter:
                     break
                 binary_index += 1
 
-        frame.save("frame{}.png".format(chunk_index))
+        frame.save(self.folder_dir + "/thread{}_frame{}.png".format(self.index, chunk_index))
