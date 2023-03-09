@@ -1,4 +1,7 @@
 YTDS:
+put videos into folders
+add folders and examples to gitignore
+
 input diffentent settings
 add a switch between video and picture en/decode
 seperate ui from ripper
