@@ -1,4 +1,6 @@
 YTDS:
+add 1. frame
+
 put videos into folders
 add folders and examples to gitignore
 
@@ -15,6 +17,8 @@ scramble images
 add images to public domane videos/images
 
 performance:
+decrypt in threads
+
 ripper.unite -> less checks in loop
 
 BUGS:

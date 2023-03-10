@@ -4,7 +4,7 @@ import sys
 import math
 from threading import Thread
 from Encrypter import Encrypter
-import hellpers as hell
+import Hellpers as hell
 
 def rip_bytes(path: str):
     file = open(path, "rb") #opening for [r]eading as [b]inary
@@ -58,9 +58,9 @@ def unite(folder_dir, fps, threads):
         for f_index in range(frames_length):
             for img in os.listdir(image_folder):
                 if img.startswith("thread{}_frame{}".format(th_index, f_index)):
-                    frames.append(img)     
-    control_frame = cv2.imread(os.path.join(image_folder, frames[1])) #doesnt use the first frame because there setting information may be stored
-    width, height, channels = control_frame.shape
+                    frames.append(img)
+    control_frame = cv2.imread(os.path.join(image_folder, frames[0]))
+    height, width, channels = control_frame.shape
     video = cv2.VideoWriter(video_name, 0, fps, (width,height)) #saving as avi
 
     for frame in frames:
