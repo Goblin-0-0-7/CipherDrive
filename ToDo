@@ -4,13 +4,18 @@ add folders and examples to gitignore
 
 input diffentent settings
 add a switch between video and picture en/decode
-seperate ui from ripper
 
 save video as mp4 not avi
 
+save frames with continious numbering so threads in ripper.unite is not needed
 
+possible encryption ways:
 read/write in 1==black and 1==white
+scramble images
+add images to public domane videos/images
 
+performance:
+ripper.unite -> less checks in loop
 
 BUGS:
 

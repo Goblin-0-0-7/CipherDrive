@@ -15,7 +15,7 @@ video_dir = "Cube.avi"
 data_width = int(width/pix_size)
 data_height = int(height/pix_size)
 
-def read_img(frame):
+def decrypt_img(frame):
     binary = ""
     binary_index = 0
     for y in range(0, data_height):
@@ -44,7 +44,7 @@ data = ""
 while cap.isOpened():
     ret, frame = cap.read()
     if ret:
-        data += read_img(frame)
+        data += decrypt_img(frame)
     else:
         break
 

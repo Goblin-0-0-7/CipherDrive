@@ -4,31 +4,7 @@ import sys
 import math
 from threading import Thread
 from Encrypter import Encrypter
-
-#default settings
-width = 1280
-height = 720
-pix_size = 2
-fps = 1
-threads = 8
-file = "Cube.jpg"
-
-file_name = file.split(".")[0]
-
-# Get the directory where the script or executable is located
-if getattr(sys, 'frozen', False):
-    # If the script is run as a standalone executable
-    dir = os.path.dirname(sys.executable)
-else:
-    # If the script is run as a Python file
-    dir = os.path.dirname(os.path.abspath(__file__))
-
-# Create a new folder called "new_folder" in the same directory as the script or executable
-folder_dir = os.path.join(dir, file_name)
-if not os.path.exists(folder_dir):
-    os.makedirs(folder_dir)
-
-
+import hellpers as hell
 
 def rip_bytes(path: str):
     file = open(path, "rb") #opening for [r]eading as [b]inary
@@ -45,7 +21,8 @@ def rip_binary(byte_data):
         binary_data += str(bits)
     return binary_data
 
-def stich(binary):
+def stich(binary, file_name, width, height, pix_size, threads):
+    folder_dir = hell.create_folder(file_name)
     length = len(binary)
 
     frame_size = (width * height)
@@ -68,16 +45,22 @@ def stich(binary):
     for index in range(len(chunks)):
         encrypters[index].run(chunks[index], index)
 
-def unite():
+    return folder_dir
+
+def unite(folder_dir, fps, threads):
     image_folder = folder_dir
+    file_name = os.path.basename(folder_dir)
     video_name = file_name + ".avi"
 
     frames = []
-    for index in range(threads):
-        for img in os.listdir(image_folder):
-            if img.startswith("thread{}".format(index)):
-                frames.append(img)         
-    
+    frames_length = hell.count_files(image_folder)
+    for th_index in range(threads):
+        for f_index in range(frames_length):
+            for img in os.listdir(image_folder):
+                if img.startswith("thread{}_frame{}".format(th_index, f_index)):
+                    frames.append(img)     
+    control_frame = cv2.imread(os.path.join(image_folder, frames[1])) #doesnt use the first frame because there setting information may be stored
+    width, height, channels = control_frame.shape
     video = cv2.VideoWriter(video_name, 0, fps, (width,height)) #saving as avi
 
     for frame in frames:
@@ -85,14 +68,3 @@ def unite():
 
     cv2.destroyAllWindows()
     video.release()
-
-bytes = rip_bytes(file)
-binary = (rip_binary(bytes))
-stich(binary)
-unite()
-
-
-#debug
-print(binary)
-
-
