@@ -1,4 +1,4 @@
 
-def generate_file(byte_data, file_name: str, extention):
-    with open('{}.{}'.format(file_name, extention), 'wb') as f:
+def generate_file(byte_data, file_name: str, extension):
+    with open('{}.{}'.format(file_name, extension), 'wb') as f:
         f.write(byte_data)

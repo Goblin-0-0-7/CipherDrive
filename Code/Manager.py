@@ -7,6 +7,7 @@ import Hellpers as hell
 compression_err = 30 #setting for decrypt missing, in 1 frame?
 video_dir = "cube.avi"
 dcr_file_name = "test1"
+extension = "jpg"
 
 file = "Cube.jpg"
 #file = "triumph.txt"
@@ -19,7 +20,7 @@ height = 720
 pix_size = 2
 fps = 1
 threads = 8
-file_name = file.split(".")[0]
+file_name, extension, __ = file.split(".")
 
 
 if job == "encrypt":
@@ -41,6 +42,8 @@ if job == "encrypt":
     hours, min, sec = hell.delta_time(start_time)
     print("stiched frames {:02d}:{:02d}:{:02d}".format(hours, min, sec))
 
+    rip.create_first_frame(file_name, width, height, pix_size, extension, frames_dir)
+
     rip.unite(frames_dir, fps, threads)
 
     hours, min, sec = hell.delta_time(start_time)
@@ -48,4 +51,4 @@ if job == "encrypt":
 
 elif job == "decrypt":
     byte_data = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
-    med.generate_file(byte_data, dcr_file_name, "png")
+    med.generate_file(byte_data, dcr_file_name, extension)

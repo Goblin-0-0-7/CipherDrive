@@ -21,10 +21,14 @@ def decrypt_img(frame, data_width, data_height, pix_size, compression_err):
 
 def decrypt_video(video_dir: str, width, height, pix_size, compression_err):
 
+    cap = cv2.VideoCapture(video_dir)
+
+    if cap.isOpened():
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
     data_width = int(width/pix_size)
     data_height = int(height/pix_size)
-
-    cap = cv2.VideoCapture(video_dir)
 
     data = ""
     while cap.isOpened():

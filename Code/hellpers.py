@@ -2,6 +2,7 @@ import sys
 import os
 import time as t
 
+#dir hellpers
 def create_folder(folder_name, folder_dir=None, next_to_file:bool =True):
     if next_to_file:
         # Get the directory where the script or executable is located
@@ -23,6 +24,7 @@ def create_folder(folder_name, folder_dir=None, next_to_file:bool =True):
 def count_files(folder_dir):
     return len([name for name in os.listdir(folder_dir) if os.path.isfile(folder_dir + "/" + name)])
 
+#time hellpers
 def delta_time(start_time):
     t_sec = round(t.time() - start_time)
     (t_min, t_sec) = divmod(t_sec,60)

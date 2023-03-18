@@ -68,3 +68,7 @@ def unite(folder_dir, fps, threads):
 
     cv2.destroyAllWindows()
     video.release()
+
+def create_first_frame(file_name, width, height, pix_size, extension, frames_dir):
+    ...
+    #create binary out of data then just like stich just with maybe even use stich?
