@@ -72,7 +72,7 @@ def unite(folder_dir, fps, threads):
 
 def create_first_frame(file_name: str, width: int, height: int, pix_size: int, fps: int, extension: str, frames_dir: str):
     b_file_name = rip_binary(file_name.encode('ascii', 'replace'))
-    b_extension = hell.ints2binary(hell.str2int(extension)).ljust(50, "0") #saved in 50 bits (5 bits per char)
+    b_extension = hell.ints2binaryABC(hell.str2intABC(extension)).ljust(50, "0") #saved in 50 bits (5 bits per char)
     b_pix_size = "{:04b}".format(pix_size, 'b') #saved in 4 bits
     b_fps = "{:08b}".format(fps, 'b') #saved in 8 bits
     b_first_frame_data = b_fps + b_pix_size + b_extension + b_file_name

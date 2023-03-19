@@ -32,34 +32,43 @@ def delta_time(start_time):
     return t_hour, t_min, t_sec
 
 #converter
-def char2int(s: str):
-    return ord(s.lower()) - 97 #number between 0-25
+def char2intABC(s: str):
+    return ord(s.lower()) - 96 #number between 0-25
 
-def int2char(i: int):
-    return chr(i + 97)
+def int2charABC(i: int):
+    if i == 0:
+        return ""
+    else:
+        return chr(i + 96)
 
-def str2int(sss: str):
+def str2intABC(sss: str):
     iii = []
     for s in sss:
-        iii.append(char2int(s))
+        iii.append(char2intABC(s))
     return iii
 
-def int2str(iii: list):
+def int2strABC(iii: list):
     sss = ""
     for i in iii:
-        sss += int2char(i)
+        sss += int2charABC(i)
     return sss
 
-def ints2binary(iii: list):
+def ints2binaryABC(iii: list):
     binary = ""
     for i in iii:
         bits = "{:05b}".format(i)
         binary += str(bits)
     return binary
 
-def binary2ints(binary: str):
+def binary2intsABC(binary: str):
     iii = []
     for bin in [binary[i:i+5] for i in range(0, len(binary), 5)]:
         bin = bin.zfill(8)
         iii.append(int(bin, 2))
     return iii
+
+def binary2str(binary: str):
+    sss = ""
+    for bin in [binary[i:i+8] for i in range(0, len(binary), 8)]:
+        sss += chr(int(bin, 2))
+    return sss

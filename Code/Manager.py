@@ -5,13 +5,13 @@ import Medic as med
 import Hellpers as hell
 
 compression_err = 30 #setting for decrypt missing, in 1 frame?
-video_dir = "cube.avi"
+video_dir = "triumph.avi"
 dcr_file_name = "test1"
 
 file = "triumph.txt"
 #file = "triumph.txt"
 
-job = "encrypt" # encrypt and decrpyt
+job = "decrypt" # encrypt and decrpyt
 
 #default settings for encrypt
 width = 1280
@@ -49,5 +49,5 @@ if job == "encrypt":
     print("united frames {:02d}:{:02d}:{:02d}".format(hours, min, sec))
 
 elif job == "decrypt":
-    byte_data = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
-    med.generate_file(byte_data, dcr_file_name, extension)
+    byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
+    med.generate_file(byte_data, file_name, file_extension)
