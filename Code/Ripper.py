@@ -22,7 +22,7 @@ def rip_binary(byte_data):
     return binary_data
 
 def stich(binary, file_name, width, height, pix_size, threads):
-    folder_dir = hell.create_folder(file_name)
+    folder_dir = hell.create_dir(file_name, next_to_file = True)
     length = len(binary)
 
     frame_size = (width * height)
