@@ -46,7 +46,8 @@ if not (download_video or download_audio):
     print("What do you even want?!")
     quit()
 """
-    
+
+""" Terminal Version    
 def check_url(url):
     #check if url is video or playlist and pick the video number from which to start
     #returns type ("playlist" or "video")
@@ -88,6 +89,18 @@ def check_url(url):
         quit()
 
     return flag, first_video, url
+"""
+
+def check_url(url):
+    #check if url is video or playlist
+    if "playlist" in url:
+        return "playlist"
+    elif "watch" in url and "list" in url:
+        return "playlist-video"
+    elif "watch" in url and not "list" in url:
+        return "video"
+    else:
+        return False
 
 def progress_function(stream, chunk, bytes_remaining):
     filesize = stream.filesize
@@ -190,14 +203,10 @@ def deleteMP4(del_directory):
                 print(e)
                 pass
 
-def download_url(url, dir, download_video = True, download_audio = True, flag = None, first_video = None):
+def download_url(url, dir, download_video, download_audio, flag, first_video):
     video_paths = []
     video_savenames = []
     video_urls = []
-
-    if not flag or "list" in url:
-        flag, first_video, url = check_url(url)
-
     start_time = time.time()
 
     #case: is video
