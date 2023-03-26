@@ -1,4 +1,4 @@
-#Youtube Content Saver Plugin
+#YouTube Content Saver
 import pytube, os, glob, sys
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pytube import Playlist, YouTube
@@ -8,7 +8,7 @@ from waiting import wait
 import time
 import Hellpers as hell
 
-
+""" Terminal Version
 #Playlist-ID input
 url = input("Enter a video or playlist URL: ")
 if not url:
@@ -45,7 +45,8 @@ choice = None
 if not (download_video or download_audio):
     print("What do you even want?!")
     quit()
-
+"""
+    
 def check_url(url):
     #check if url is video or playlist and pick the video number from which to start
     #returns type ("playlist" or "video")
@@ -194,7 +195,6 @@ def download_url(url, dir, download_video = True, download_audio = True, flag = 
     video_savenames = []
     video_urls = []
 
-
     if not flag or "list" in url:
         flag, first_video, url = check_url(url)
 
@@ -271,7 +271,3 @@ def download_url(url, dir, download_video = True, download_audio = True, flag = 
     delta_time = time.time() - start_time
     delta_time_formated = time.strftime("%H:%M:%S", time.gmtime(delta_time))
     print(f"Download finished in {delta_time_formated}!")
-
-
-
-download_url(url, directory)
