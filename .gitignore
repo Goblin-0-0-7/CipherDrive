@@ -2,3 +2,4 @@ Youtube Content Saver.code-workspace
 .vscode/
 YTCS.exe
 Code/__pycache__/
+Code/log/

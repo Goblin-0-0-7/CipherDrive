@@ -1,5 +1,4 @@
-import sys
-import os
+import sys, os, glob
 import time as t
 
 #dir hellpers
@@ -25,9 +24,18 @@ def create_dir(dir, next_to_file: bool =False):
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-
 def count_files(folder_dir):
     return len([name for name in os.listdir(folder_dir) if os.path.isfile(folder_dir + "/" + name)])
+
+def delete_oldest(folder_dir):
+    file_list = glob.glob(os.path.join(folder_dir, "*"))
+
+    if not file_list:
+        pass
+    else:
+        file_list.sort(key=lambda x: os.path.getctime(x))
+        oldest_file = file_list[0]
+        os.remove(oldest_file)
 
 #time hellpers
 def delta_time(start_time):

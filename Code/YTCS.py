@@ -1,11 +1,12 @@
 #YouTube Content Saver
-import pytube, os, glob, sys
+import pytube, os, glob, logging
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pytube import Playlist, YouTube
 from pytube.helpers import safe_filename
 from pytube.exceptions import VideoPrivate
 from waiting import wait
 import time
+import logging
 import Hellpers as hell
 
 """ Terminal Version
@@ -97,6 +98,10 @@ class Downloader:
         self.progressBar_video = progressBar_video
         self.download_info = download_info
         self.callback = callback
+        self.logger = logging.getLogger("CipherDrive")
+        self.error_count = 0
+        self.warning_count = 0
+        self.not_deleted_files = 0
 
     def progress_function(self, stream, chunk, bytes_remaining):
         filesize = stream.filesize
@@ -149,11 +154,14 @@ class Downloader:
                     video_path = video_stream.download(save_directory, video_savenames[list_itemcounter] + ".mp4", skip_existing=True)
                     video_paths.append(video_path)
                 except pytube.exceptions.VideoUnavailable:
-                    print("Video is regional unavailable") #occurs only when regional unavailable?
+                    self.logger.warning(f"Video [{links[x]}] is regional unavailable")
+                    self.callback("video unavailable") #occurs only when regional unavailable?
+                    self.warning_count += 1
+                    return
                     break
                 except Exception as e:
-                    print(e)
-                    print("Error occured")
+                    self.logger.error(e)
+                    self.error_count += 1
                     continue
                 break
             list_itemcounter += 1
@@ -178,14 +186,15 @@ class Downloader:
 
     def deleteMP4(self, del_directory):
         for file in glob.glob(os.path.join(del_directory, "*.mp4")):
-            print(file) #check if path is choosen correctly
             while True:
                 try:
                     os.remove(file)
                     break
                 except Exception as e:
-                    print(f"{file} could not be deleted")
-                    print(e)
+                    self.logger.warning(f"{file} could not be deleted")
+                    self.logger.error(e)
+                    self.error_count += 1
+                    self.not_deleted_files += 1
                     pass
 
     def download_url(self, url, dir, download_video, download_audio, flag, first_video):
@@ -228,8 +237,8 @@ class Downloader:
             try:
                 playlist_title = playlist.title
             except:
-                print("Can not access playlist. Check if playlist is set to private.")
-                quit()
+                self.callback("no access to playlist")
+                return
             #create playlist directory
             playlist_directory = dir + "/" + playlist_title
             hell.create_dir(playlist_directory)
@@ -256,15 +265,14 @@ class Downloader:
                 video_paths, video_savenames = self.downloadVideo(video_urls, video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
                 self.convertVideo(video_paths, video_savenames, audio_directory, first_video, playlist_itemcount)
                 self.deleteMP4(audio_directory)
-            
-            print('Playlist has been saved with ' + str(playlist_itemcount) + ' entries')
 
         else:
-            print("URL was not a downloadable source")
-
+            self.logger.warning(f"{url} was not a downloadable source")
+            self.callback("url error")
+            return
 
         self.on_finished(start_time)
-        self.callback(start_time)
+        self.callback("finished", start_time, self.warning_count, self.error_count, self.not_deleted_files)
         
 def check_url(url):
     #check if url is video or playlist

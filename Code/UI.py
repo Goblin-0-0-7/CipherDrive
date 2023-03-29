@@ -4,12 +4,14 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
 from PyQt5.uic import loadUi
 from threading import Thread
+import Bobbie as bob
 import Hellpers as hell
 import YTCS
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        bob.create_logger()
         loadUi("CipherDrive GUI.ui", self)
         self.toolButton_choose_dir.clicked.connect(self.choose_dir)
         self.pushButton_download.clicked.connect(self.start_download)
@@ -19,10 +21,20 @@ class MainWindow(QMainWindow):
         dir = QFileDialog.getExistingDirectory(self, "Choose Save Directory", hell.get_work_dir())
         self.lineEdit_save_dir.setText(dir)
     
-    def download_finished(self, start_time):
-        delta_time = time.time() - start_time
-        delta_time_formated = time.strftime("%H:%M:%S", time.gmtime(delta_time))
-        self.label_download_info.setText(f"Download finished in: {delta_time_formated}")
+    def download_finished(self, msg, start_time = 0, warnings = 0, errors = 0, not_deleted_files = 0):
+        if msg == "finished":
+            delta_time = time.time() - start_time
+            delta_time_formated = time.strftime("%H:%M:%S", time.gmtime(delta_time))
+            info_text = f"Download finished in: {delta_time_formated} with {warnings} warnings, {errors} errors"
+            if not (not_deleted_files == 0):
+                info_text += f"| {not_deleted_files} files could not be deleted"
+        elif msg == "url error":
+            info_text = "URL was not a downloadable source"
+        elif msg == "video unavailable":
+            info_text = "Video is regional unavailable"
+        elif msg == "no access to playlist":
+            info_text = "Can not access playlist. Check if playlist is set to private."
+        self.label_download_info.setText(info_text)
         self.pushButton_download.setText("Start Download")
         self.pushButton_download.setEnabled(True)
 
