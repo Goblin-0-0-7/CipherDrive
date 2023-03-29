@@ -1,4 +1,5 @@
 import sys
+import time
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
 from PyQt5.uic import loadUi
@@ -18,6 +19,13 @@ class MainWindow(QMainWindow):
         dir = QFileDialog.getExistingDirectory(self, "Choose Save Directory", hell.get_work_dir())
         self.lineEdit_save_dir.setText(dir)
     
+    def download_finished(self, start_time):
+        delta_time = time.time() - start_time
+        delta_time_formated = time.strftime("%H:%M:%S", time.gmtime(delta_time))
+        self.label_download_info.setText(f"Download finished in: {delta_time_formated}")
+        self.pushButton_download.setText("Start Download")
+        self.pushButton_download.setEnabled(True)
+
     def start_download(self):
         url = self.lineEdit_url.text()
         dir = self.lineEdit_save_dir.text()
@@ -34,8 +42,11 @@ class MainWindow(QMainWindow):
             first_video = self.spinBox_first_entry.value()
 
         if url_type and dir and (video_flag or audio_flag):
-            download_thread = Thread(target=YTCS.download_url, args=(url, dir, video_flag, audio_flag, flag, first_video), daemon=True)
+            downloader = YTCS.Downloader(self.progressBar_video, self.label_download_info, self.download_finished)
+            download_thread = Thread(target=downloader.download_url, args=(url, dir, video_flag, audio_flag, flag, first_video), daemon=True)
             download_thread.start()
+            self.pushButton_download.setText("Downloading...")
+            self.pushButton_download.setEnabled(False)
 
     def check_url(self):
         url = self.lineEdit_url.text()
@@ -81,7 +92,6 @@ mainWindow = MainWindow()
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(mainWindow)
 widget.setWindowTitle("CipherDrive")
-widget.resize(700,200)
-#widget.setFixedSize()
+widget.resize(700,250)
 widget.show()
 sys.exit(app.exec_())

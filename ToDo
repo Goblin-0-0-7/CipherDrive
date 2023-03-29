@@ -21,7 +21,15 @@ decrypt in threads
 
 ripper.unite -> less checks in loop
 
-BUGS:
+YTCS:
+add Timer to UI
+move all outputs to UI (Errormessages into Debuger, user-errors msg as pop up or simular)
+
+Error:
+"QObject::setParent: Cannot set parent, new parent is in a different thread"
+called in progress_funktion, when updating progressbar (maybe also in update_download_info)
+
+BUGS YTCS:
 
 extracting video streams takes to long
 https://github.com/pytube/pytube/issues/1453
@@ -31,6 +39,3 @@ progress of video showing after "Download finished"
 possible unchecked errors:
 private video
 age restriceted video
-
-YTCS:
-look into download audio
