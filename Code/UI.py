@@ -7,20 +7,73 @@ from threading import Thread
 import Bobbie as bob
 import Hellpers as hell
 import YTCS
+from Manager import Manager
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         bob.create_logger()
         loadUi("CipherDrive GUI.ui", self)
-        self.toolButton_choose_dir.clicked.connect(self.choose_dir)
+        #Encrypt Tab
+        self.comboBox_enc_resolution.setCurrentIndex(2)
+        self.toolButton_enc_choose_file_dir.clicked.connect(self.choose_file)
+        self.toolButton_enc_choose_save_dir.clicked.connect(self.choose_save_dir)
+        self.pushButton_enc_encrypt.clicked.connect(self.encrypt)
+        #Download Tab
+        self.toolButton_dow_choose_dir.clicked.connect(self.choose_save_dir)
         self.pushButton_download.clicked.connect(self.start_download)
         self.lineEdit_url.textChanged.connect(self.check_url)
 
-    def choose_dir(self):
+    def choose_save_dir(self):
         dir = QFileDialog.getExistingDirectory(self, "Choose Save Directory", hell.get_work_dir())
-        self.lineEdit_save_dir.setText(dir)
-    
+        if self.tabWidget_container.currentIndex() == 0: #encrypt
+            self.lineEdit_enc_save_dir.setText(dir)
+        elif self.tabWidget_container.currentIndex() == 1: #decrypt
+            ...
+        elif self.tabWidget_container.currentIndex() == 2: #download
+            self.lineEdit_dow_save_dir.setText(dir)
+
+    def choose_file(self):
+        if self.tabWidget_container.currentIndex() == 0: #encrypt
+            dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir())
+            self.lineEdit_enc_file_dir.setText(dir[0])
+        elif self.tabWidget_container.currentIndex() == 1: #decrypt
+            ...
+        elif self.tabWidget_container.currentIndex() == 2: #download
+            ...
+
+    def encryption_finished(self, msg):
+        if msg == "finished":
+            ...
+        elif msg == "file empty":
+            self.label_enc_progress_info.setText("File is empty")
+        self.pushButton_enc_encrypt.setText("Encrypt")
+        self.pushButton_enc_encrypt.setEnabled(True)
+
+
+    def encrypt(self):
+        file_path = self.lineEdit_enc_file_dir.text()
+        save_dir = self.lineEdit_enc_save_dir.text()
+        resolution = self.comboBox_enc_resolution.currentText()
+        width_str, height_str = resolution.split("x")
+        width = int(width_str)
+        height = int(height_str)
+        pix_size = int(self.comboBox_enc_pixsize.currentText())
+        fps = int(self.lineEdit_enc_fps.text())
+        threads = int(self.lineEdit_enc_threads.text())
+        file_name = self.lineEdit_enc_filename.text()
+
+        checked = True
+        if file_path == "" or save_dir =="" or pix_size == "" or fps == "" or threads == "":
+            checked = False
+
+        if checked == True:
+            manager = Manager(self.label_enc_progress_info, self.encryption_finished)
+            encrypt_thread = Thread(target=manager.encrypt, args=(file_path, save_dir, width, height, pix_size, fps, threads, file_name), daemon=True)
+            encrypt_thread.start()
+            self.pushButton_enc_encrypt.setText("Encrypting...")
+            self.pushButton_enc_encrypt.setEnabled(False)
+
     def download_finished(self, msg, start_time = 0, warnings = 0, errors = 0, not_deleted_files = 0):
         if msg == "finished":
             delta_time = time.time() - start_time
@@ -37,10 +90,10 @@ class MainWindow(QMainWindow):
         self.label_download_info.setText(info_text)
         self.pushButton_download.setText("Start Download")
         self.pushButton_download.setEnabled(True)
-
+    
     def start_download(self):
         url = self.lineEdit_url.text()
-        dir = self.lineEdit_save_dir.text()
+        dir = self.lineEdit_dow_save_dir.text()
         video_flag = self.checkBox_video.isChecked()
         audio_flag = self.checkBox_audio.isChecked()
         url_type = YTCS.check_url(url)
@@ -104,6 +157,6 @@ mainWindow = MainWindow()
 widget = QtWidgets.QStackedWidget()
 widget.addWidget(mainWindow)
 widget.setWindowTitle("CipherDrive")
-widget.resize(700,250)
+widget.resize(700, 350)
 widget.show()
 sys.exit(app.exec_())

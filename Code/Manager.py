@@ -1,4 +1,6 @@
+import os
 import time as t
+import logging
 import Ripper as rip
 import Decrypter as dcr
 import Medic as med
@@ -8,46 +10,50 @@ compression_err = 30 #setting for decrypt missing, in 1 frame?
 video_dir = "triumph.avi"
 dcr_file_name = "test1"
 
-file = "triumph.txt"
-#file = "triumph.txt"
+class Manager:
 
-job = "decrypt" # encrypt and decrpyt
+    def __init__(self, progress_info, callback):
+        self.progress_info = progress_info
+        self.callback = callback
+        self.logger = logging.getLogger("CipherDrive")
 
-#default settings for encrypt
-width = 1280
-height = 720
-pix_size = 2
-fps = 1
-threads = 8
-file_name, extension = file.split(".")
+    def encrypt(self, file_path: str, save_dir: str ,width: int, height: int, pix_size: int = 2, fps: int = 1, threads: int = 8, file_name: str = ""):
+        start_time = t.time()
+        file = os.path.basename(file_path)
+        if file_name == "":
+            file_name, extension = file.split(".")
+        else:
+            extension = file.split(".")[1]
+        bytes = rip.rip_bytes(file_path)
+        if bytes == "File is empty":
+            self.callback("file empty")
+            return
+        self.logger.info(f"Byte length: {len(bytes)}")
 
+        self.return_status(start_time, "ripped bytes")
 
-if job == "encrypt":
+        binary = rip.rip_binary(bytes)
 
-    start_time = t.time()
+        self.return_status(start_time, "ripped binary")
 
-    bytes = rip.rip_bytes(file)
+        frames_dir = rip.stich(binary, file_name, width, height, pix_size, threads, save_dir)
 
-    hours, min, sec = hell.delta_time(start_time)
-    print("ripped bytes {:02d}:{:02d}:{:02d}".format(hours, min, sec))
+        self.return_status(start_time, "stiched frames")
 
-    binary = rip.rip_binary(bytes)
+        rip.create_first_frame(file_name, width, height, pix_size, fps, extension, frames_dir)
+        rip.unite(frames_dir, fps, threads)
 
-    hours, min, sec = hell.delta_time(start_time)
-    print("ripped binary {:02d}:{:02d}:{:02d}".format(hours, min, sec))
+        self.return_status(start_time, "video saved")
+        self.callback("finished")
 
-    frames_dir = rip.stich(binary, file_name, width, height, pix_size, threads)
+    def decrypt(self):
+        byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
+        med.generate_file(byte_data, file_name, file_extension)
 
-    hours, min, sec = hell.delta_time(start_time)
-    print("stiched frames {:02d}:{:02d}:{:02d}".format(hours, min, sec))
-
-    rip.create_first_frame(file_name, width, height, pix_size, fps, extension, frames_dir)
-
-    rip.unite(frames_dir, fps, threads)
-
-    hours, min, sec = hell.delta_time(start_time)
-    print("united frames {:02d}:{:02d}:{:02d}".format(hours, min, sec))
-
-elif job == "decrypt":
-    byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
-    med.generate_file(byte_data, file_name, file_extension)
+    def return_status(self, start_time, status: str):
+        hours, min, sec = hell.delta_time(start_time)
+        self.progress_info.setText(status + " {:02d}:{:02d}:{:02d}".format(hours, min, sec))
+        self.logger.info(status + " {:02d}:{:02d}:{:02d}".format(hours, min, sec))
+        """Terminal Version
+        print(status + " {:02d}:{:02d}:{:02d}".format(hours, min, sec))
+        """

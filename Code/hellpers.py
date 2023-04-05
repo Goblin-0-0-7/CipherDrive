@@ -23,6 +23,7 @@ def create_dir(dir, next_to_file: bool =False):
     else:
         if not os.path.exists(dir):
             os.makedirs(dir)
+        return dir
 
 def count_files(folder_dir):
     return len([name for name in os.listdir(folder_dir) if os.path.isfile(folder_dir + "/" + name)])

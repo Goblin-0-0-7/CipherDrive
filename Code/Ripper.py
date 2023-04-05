@@ -1,6 +1,5 @@
 import cv2
 import os
-import sys
 import math
 from threading import Thread
 from Encrypter import Encrypter
@@ -10,8 +9,7 @@ def rip_bytes(path: str):
     file = open(path, "rb") #opening for [r]eading as [b]inary
     byte_data = file.read()
     file.close()
-    if not byte_data: print("File is empty")
-    print("Byte length: {}".format(len(byte_data)))
+    if not byte_data: return "File is empty"
     return byte_data
 
 def rip_binary(byte_data):
@@ -21,8 +19,8 @@ def rip_binary(byte_data):
         binary_data += str(bits)
     return binary_data
 
-def stich(binary, file_name, width, height, pix_size, threads):
-    folder_dir = hell.create_dir(file_name, next_to_file = True)
+def stich(binary, file_name, width, height, pix_size, threads, save_dir):
+    folder_dir = hell.create_dir(save_dir + "/" + file_name)
     length = len(binary)
 
     frame_size = (width * height)
@@ -47,9 +45,8 @@ def stich(binary, file_name, width, height, pix_size, threads):
 
     return folder_dir
 
-def unite(folder_dir, fps, threads):
-    image_folder = folder_dir
-    file_name = os.path.basename(folder_dir)
+def unite(image_folder, fps, threads):
+    file_name = os.path.basename(image_folder)
     video_name = file_name + ".avi"
 
     frames = []
@@ -60,9 +57,9 @@ def unite(folder_dir, fps, threads):
             for img in os.listdir(image_folder):
                 if img.startswith("thread{}_frame{}".format(th_index, f_index)):
                     frames.append(img)
-    control_frame = cv2.imread(os.path.join(image_folder, frames[0]))
+    control_frame = cv2.imread(image_folder + "/" + frames[0])
     height, width, channels = control_frame.shape
-    video = cv2.VideoWriter(video_name, 0, fps, (width,height)) #saving as avi
+    video = cv2.VideoWriter(image_folder + "/" + video_name, 0, fps, (width,height)) #saving as avi
 
     for frame in frames:
         video.write(cv2.imread(os.path.join(image_folder, frame)))
@@ -80,5 +77,4 @@ def create_first_frame(file_name: str, width: int, height: int, pix_size: int, f
     first_frame_pix_size = int(width / 32)
 
     encrypter = Encrypter(frames_dir, width, height, first_frame_pix_size, -1, True)
-    encrypter_thread = Thread(target= encrypter.run, args=(b_first_frame_data, -1))
-    encrypter_thread.start()
+    encrypter.run(b_first_frame_data, -1)
