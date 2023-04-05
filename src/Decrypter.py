@@ -1,8 +1,10 @@
-from PIL import Image
+import logging
 import cv2
 import Hellpers as hell
 
 def decrypt_frame(frame, data_width, data_height, pix_size, compression_err):
+    logger = logging.getLogger("CipherDrive")
+
     binary = ""
     empty_pixel = 0
     for y in range(0, data_height):
@@ -17,10 +19,12 @@ def decrypt_frame(frame, data_width, data_height, pix_size, compression_err):
                 binary += "0"
             else:
                 empty_pixel +=1
-    print("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
+    logger.into("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
     return binary
 
 def decrypt_first_frame(frame, width, compression_err):
+    logger = logging.getLogger("CipherDrive")
+
     binary = ""
     empty_pixel = 0
     pix_size = int(width / 32)
@@ -35,7 +39,7 @@ def decrypt_first_frame(frame, width, compression_err):
                 binary += "0"
             else:
                 empty_pixel +=1
-    print("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
+    logger.info("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
 
     indices = [0,8,12,62]
     b_fps, b_pix_size, b_file_extension, b_file_name = [binary[i:j] for i,j in zip(indices, indices[1:]+[None])]
@@ -45,7 +49,7 @@ def decrypt_first_frame(frame, width, compression_err):
     file_name = hell.binary2str(b_file_name)
     return fps, pix_size, file_extension, file_name
 
-def decrypt_video(video_dir: str, width, height, pix_guessed_size, compression_err):
+def decrypt_video(video_dir: str, compression_err):
 
     cap = cv2.VideoCapture(video_dir)
 

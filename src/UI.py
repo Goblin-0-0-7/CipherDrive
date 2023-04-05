@@ -19,6 +19,9 @@ class MainWindow(QMainWindow):
         self.toolButton_enc_choose_file_dir.clicked.connect(self.choose_file)
         self.toolButton_enc_choose_save_dir.clicked.connect(self.choose_save_dir)
         self.pushButton_enc_encrypt.clicked.connect(self.encrypt)
+        #Decrypt Tab
+        self.toolButton_dec_choose_file_dir.clicked.connect(self.choose_file)
+        self.pushButton_dec_decrypt.clicked.connect(self.decrypt)
         #Download Tab
         self.toolButton_dow_choose_dir.clicked.connect(self.choose_save_dir)
         self.pushButton_download.clicked.connect(self.start_download)
@@ -34,11 +37,11 @@ class MainWindow(QMainWindow):
             self.lineEdit_dow_save_dir.setText(dir)
 
     def choose_file(self):
+        dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir())
         if self.tabWidget_container.currentIndex() == 0: #encrypt
-            dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir())
             self.lineEdit_enc_file_dir.setText(dir[0])
         elif self.tabWidget_container.currentIndex() == 1: #decrypt
-            ...
+            self.lineEdit_dec_file_dir.setText(dir[0])
         elif self.tabWidget_container.currentIndex() == 2: #download
             ...
 
@@ -66,13 +69,30 @@ class MainWindow(QMainWindow):
         checked = True
         if file_path == "" or save_dir =="" or pix_size == "" or fps == "" or threads == "":
             checked = False
-
         if checked == True:
             manager = Manager(self.label_enc_progress_info, self.encryption_finished)
             encrypt_thread = Thread(target=manager.encrypt, args=(file_path, save_dir, width, height, pix_size, fps, threads, file_name), daemon=True)
             encrypt_thread.start()
             self.pushButton_enc_encrypt.setText("Encrypting...")
             self.pushButton_enc_encrypt.setEnabled(False)
+
+    def decrpyt_finished(self):
+        self.pushButton_dec_decrypt.setText("Decrpyt")
+        self.pushButton_dec_decrypt.setEnabled(True)
+
+    def decrypt(self):
+        video_dir = self.lineEdit_dec_file_dir.text()
+        compression_err = int(self.lineEdit_dec_compression_err.text())
+
+        checked = True
+        if video_dir == "" or compression_err == "":
+            checked = False
+        if checked == True:
+            manager = Manager(self.label_dec_progress_info, self.decrpyt_finished)
+            decrypt_thread = Thread(target=manager.decrypt, args=(video_dir, compression_err), daemon=True)
+            decrypt_thread.start()
+            self.pushButton_dec_decrypt.setText("Decrypting...")
+            self.pushButton_dec_decrypt.setEnabled(False)
 
     def download_finished(self, msg, start_time = 0, warnings = 0, errors = 0, not_deleted_files = 0):
         if msg == "finished":

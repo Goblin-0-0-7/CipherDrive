@@ -6,10 +6,6 @@ import Decrypter as dcr
 import Medic as med
 import Hellpers as hell
 
-compression_err = 30 #setting for decrypt missing, in 1 frame?
-video_dir = "triumph.avi"
-dcr_file_name = "test1"
-
 class Manager:
 
     def __init__(self, progress_info, callback):
@@ -45,10 +41,13 @@ class Manager:
 
         self.return_status(start_time, "video saved")
         self.callback("finished")
+        return
 
-    def decrypt(self):
-        byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, width, height, pix_size, compression_err)
-        med.generate_file(byte_data, file_name, file_extension)
+    def decrypt(self, video_dir, compression_err):
+        byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, compression_err)
+        med.generate_file(byte_data, file_name, file_extension, video_dir)
+        self.callback()
+        return
 
     def return_status(self, start_time, status: str):
         hours, min, sec = hell.delta_time(start_time)
