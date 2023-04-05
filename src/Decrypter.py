@@ -19,7 +19,7 @@ def decrypt_frame(frame, data_width, data_height, pix_size, compression_err):
                 binary += "0"
             else:
                 empty_pixel +=1
-    logger.into("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
+    logger.info("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
     return binary
 
 def decrypt_first_frame(frame, width, compression_err):

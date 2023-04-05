@@ -17,7 +17,7 @@ class Manager:
         start_time = t.time()
         file = os.path.basename(file_path)
         if file_name == "":
-            file_name, extension = file.split(".")
+            file_name, extension = file.rsplit(".", 1)
         else:
             extension = file.split(".")[1]
         bytes = rip.rip_bytes(file_path)
@@ -43,8 +43,9 @@ class Manager:
         self.callback("finished")
         return
 
-    def decrypt(self, video_dir, compression_err):
-        byte_data, file_extension, file_name = dcr.decrypt_video(video_dir, compression_err)
+    def decrypt(self, video_path, compression_err):
+        byte_data, file_extension, file_name = dcr.decrypt_video(video_path, compression_err)
+        video_dir = os.path.dirname(video_path)
         med.generate_file(byte_data, file_name, file_extension, video_dir)
         self.callback()
         return

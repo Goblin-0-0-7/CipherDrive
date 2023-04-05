@@ -37,10 +37,11 @@ class MainWindow(QMainWindow):
             self.lineEdit_dow_save_dir.setText(dir)
 
     def choose_file(self):
-        dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir())
         if self.tabWidget_container.currentIndex() == 0: #encrypt
+            dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir())
             self.lineEdit_enc_file_dir.setText(dir[0])
         elif self.tabWidget_container.currentIndex() == 1: #decrypt
+            dir = QFileDialog.getOpenFileName(self, "Choose File", hell.get_work_dir(), "*.avi")
             self.lineEdit_dec_file_dir.setText(dir[0])
         elif self.tabWidget_container.currentIndex() == 2: #download
             ...

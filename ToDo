@@ -1,11 +1,5 @@
 YTDS:
-add 1. frame
-
-put videos into folders
-add folders and examples to gitignore
-
-input diffentent settings
-add a switch between video and picture en/decode
+threading in encrypt not working?
 
 save video as mp4 not avi
 
