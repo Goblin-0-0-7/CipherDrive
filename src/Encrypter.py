@@ -1,4 +1,5 @@
 from PIL import Image
+import math
 
 class Encrypter:
 
@@ -13,13 +14,14 @@ class Encrypter:
     def standby(self): #useless?
         self.standby = True
 
-    def run(self, chunk, chunk_index):
-        frame = Image.new('L', (self.width, self.height), color=128) #create new gray frame ("L" means grayscale mode)
-
+    def run(self, chunk):
         data_width = int(self.width/self.pix_size)
         data_height = int(self.height/self.pix_size)
+        frame_data_size = data_height * data_width
 
         if self.first_frame:
+            frame = Image.new('L', (self.width, self.height), color=128) #create new gray frame ("L" means grayscale mode)
+
             binary_index = 0
             for y in range(0, data_height):
                 for x in range(0, data_width):
@@ -43,19 +45,24 @@ class Encrypter:
 
             frame.save(self.folder_dir + "/first_frame.png")
         else:
-            binary_index = 0
-            for y in range(0, data_height):
-                for x in range(0, data_width):
+            frames = math.ceil(len(chunk) / frame_data_size)
+            frame_data = [chunk[i:i+frame_data_size] for i in range(0, len(chunk), frame_data_size)] #seperates binary into equal chunks
+            for index in range(frames):
+                frame = Image.new('L', (self.width, self.height), color=128) #create new gray frame ("L" means grayscale mode)
 
-                    if binary_index < len(chunk):
-                        for i in range(self.pix_size*y, self.pix_size*y + self.pix_size):
-                            for k in range(self.pix_size*x, self.pix_size*x + self.pix_size):
-                                if int(chunk[binary_index]) == 1: #1 == black, white == 0                           
-                                    frame.putpixel((k,i), 0)
-                                else:
-                                    frame.putpixel((k,i), 255)
-                    else:
-                        break
-                    binary_index += 1
+                binary_index = 0
+                for y in range(0, data_height):
+                    for x in range(0, data_width):
 
-            frame.save(self.folder_dir + "/thread{}_frame{}.png".format(self.index, chunk_index))
+                        if binary_index < len(frame_data[index]):
+                            for i in range(self.pix_size*y, self.pix_size*y + self.pix_size):
+                                for k in range(self.pix_size*x, self.pix_size*x + self.pix_size):
+                                    if int(frame_data[index][binary_index]) == 1: #1 == black, white == 0                           
+                                        frame.putpixel((k,i), 0)
+                                    else:
+                                        frame.putpixel((k,i), 255)
+                        else:
+                            break
+                        binary_index += 1
+
+                frame.save(self.folder_dir + "/thread{}_frame{}.png".format(self.index, index))

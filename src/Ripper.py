@@ -29,19 +29,21 @@ def stich(binary, file_name, width, height, pix_size, threads, save_dir):
     chunk_frame_size = math.ceil(frame_length / threads)
     chunk_data_size = int(chunk_frame_size * frame_data_size)
 
-    chunks = [binary[i:i+chunk_data_size] for i in range(0, len(binary), chunk_data_size)] #seperates binary into equal chunks
+    chunks = [binary[i:i+chunk_data_size] for i in range(0, length, chunk_data_size)] #seperates binary into equal chunks
     
     encrypters = []
     encrypter_threads = []
-    for index in range(threads):
+    for index in range(len(chunks)):
         new_encrypter = Encrypter(folder_dir, width, height, pix_size, index)
         encrypters.append(new_encrypter)
-        new_encrypter_thread = Thread(target= new_encrypter.standby, args=( ))
-        new_encrypter_thread.start()
+        new_encrypter_thread = Thread(target= new_encrypter.run, args=(chunks[index], ))
         encrypter_threads.append(new_encrypter_thread)
 
-    for index in range(len(chunks)):
-        encrypters[index].run(chunks[index], index)
+    for thread in encrypter_threads:
+        thread.start()
+    
+    for thread in encrypter_threads: #wait for threads to finish
+        thread.join()
 
     return folder_dir
 
@@ -77,4 +79,4 @@ def create_first_frame(file_name: str, width: int, height: int, pix_size: int, f
     first_frame_pix_size = int(width / 32)
 
     encrypter = Encrypter(frames_dir, width, height, first_frame_pix_size, -1, True)
-    encrypter.run(b_first_frame_data, -1)
+    encrypter.run(b_first_frame_data)
