@@ -14,6 +14,7 @@ class Manager:
         self.logger = logging.getLogger("CipherDrive")
 
     def encrypt(self, file_path: str, save_dir: str ,width: int, height: int, pix_size: int = 2, fps: int = 1, threads: int = 8, file_name: str = ""):
+        global start_time
         start_time = t.time()
         file = os.path.basename(file_path)
         if file_name == "":
@@ -32,7 +33,9 @@ class Manager:
 
         self.return_status(start_time, "ripped binary")
 
-        frames_dir = rip.stich(binary, file_name, width, height, pix_size, threads, save_dir)
+        global finished_frames
+        finished_frames = []
+        frames_dir = rip.stich(binary, file_name, width, height, pix_size, threads, save_dir, self.stiched_frames_update)
 
         self.return_status(start_time, "stiched frames")
 
@@ -49,6 +52,12 @@ class Manager:
         med.generate_file(byte_data, file_name, file_extension, video_dir)
         self.callback()
         return
+
+    def stiched_frames_update(self, thread_index, frames_index, frames_length):
+        finished_frames.append(f"thread{thread_index}_frame{frames_index}")
+        completed_frames = len(finished_frames)
+        msg = f"{completed_frames} / {frames_length} frames stiched"
+        self.return_status(start_time, msg)
 
     def return_status(self, start_time, status: str):
         hours, min, sec = hell.delta_time(start_time)
