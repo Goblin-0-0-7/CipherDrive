@@ -3,18 +3,18 @@ import math
 
 class Encrypter:
 
-    def __init__(self, folder_dir, width, height, pix_size, index, first_frame: bool = False):
+    def __init__(self, folder_dir, width, height, pix_size, thread_index, first_frame: bool = False):
         self.width = width
         self.height = height
         self.pix_size = pix_size
-        self.index = index
+        self.thread_index = thread_index
         self.folder_dir = folder_dir
         self.first_frame = first_frame
 
     def standby(self): #useless?
         self.standby = True
 
-    def run(self, chunk):
+    def run(self, chunk, finished_frame = None):
         data_width = int(self.width/self.pix_size)
         data_height = int(self.height/self.pix_size)
         frame_data_size = data_height * data_width
@@ -47,17 +47,17 @@ class Encrypter:
         else:
             frames = math.ceil(len(chunk) / frame_data_size)
             frame_data = [chunk[i:i+frame_data_size] for i in range(0, len(chunk), frame_data_size)] #seperates binary into equal chunks
-            for index in range(frames):
+            for frame_index in range(frames):
                 frame = Image.new('L', (self.width, self.height), color=128) #create new gray frame ("L" means grayscale mode)
 
                 binary_index = 0
                 for y in range(0, data_height):
                     for x in range(0, data_width):
 
-                        if binary_index < len(frame_data[index]):
+                        if binary_index < len(frame_data[frame_index]):
                             for i in range(self.pix_size*y, self.pix_size*y + self.pix_size):
                                 for k in range(self.pix_size*x, self.pix_size*x + self.pix_size):
-                                    if int(frame_data[index][binary_index]) == 1: #1 == black, white == 0                           
+                                    if int(frame_data[frame_index][binary_index]) == 1: #1 == black, white == 0                           
                                         frame.putpixel((k,i), 0)
                                     else:
                                         frame.putpixel((k,i), 255)
@@ -65,4 +65,5 @@ class Encrypter:
                             break
                         binary_index += 1
 
-                frame.save(self.folder_dir + "/thread{}_frame{}.png".format(self.index, index))
+                frame.save(self.folder_dir + "/thread{}_frame{}.png".format(self.thread_index, frame_index))
+                finished_frame(self.thread_index, frame_index)

@@ -48,7 +48,8 @@ class MainWindow(QMainWindow):
 
     def encryption_finished(self, msg):
         if msg == "finished":
-            ...
+            self.pushButton_enc_encrypt.setText("Encrypt")
+            self.pushButton_enc_encrypt.setEnabled(True)
         elif msg == "file empty":
             self.label_enc_progress_info.setText("File is empty")
         self.pushButton_enc_encrypt.setText("Encrypt")

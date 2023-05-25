@@ -19,7 +19,8 @@ def rip_binary(byte_data):
         binary_data += str(bits)
     return binary_data
 
-def stich(binary, file_name, width, height, pix_size, threads, save_dir):
+def stich(binary, file_name, width, height, pix_size, threads, save_dir, callback):
+    
     folder_dir = hell.create_dir(save_dir + "/" + file_name)
     length = len(binary)
 
@@ -31,12 +32,15 @@ def stich(binary, file_name, width, height, pix_size, threads, save_dir):
 
     chunks = [binary[i:i+chunk_data_size] for i in range(0, length, chunk_data_size)] #seperates binary into equal chunks
     
+    def finished_frame(thread, frame):
+        callback(thread, frame, frame_length)
+
     encrypters = []
     encrypter_threads = []
     for index in range(len(chunks)):
         new_encrypter = Encrypter(folder_dir, width, height, pix_size, index)
         encrypters.append(new_encrypter)
-        new_encrypter_thread = Thread(target= new_encrypter.run, args=(chunks[index], ))
+        new_encrypter_thread = Thread(target= new_encrypter.run, args=(chunks[index], finished_frame, ))
         encrypter_threads.append(new_encrypter_thread)
 
     for thread in encrypter_threads:
@@ -46,6 +50,7 @@ def stich(binary, file_name, width, height, pix_size, threads, save_dir):
         thread.join()
 
     return folder_dir
+
 
 def unite(image_folder, fps, threads):
     file_name = os.path.basename(image_folder)
