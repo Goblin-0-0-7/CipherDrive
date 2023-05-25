@@ -16,10 +16,12 @@ decrypt in threads
 ripper.unite -> less checks in loop
 
 YTCS:
-move all outputs to UI (Errormessages into Debuger, user-errors msg as pop up or simular)
-merge to master if YTCS works normaly in UI
+add mp4 to mp3 converter
 
 Error:
+
+__init__: could not find match for ^\\w+\\W: https://stackoverflow.com/questions/70776558/pytube-exceptions-regexmatcherror-init-could-not-find-match-for-w-w
+
 "QObject::setParent: Cannot set parent, new parent is in a different thread"
 called in progress_funktion, when updating progressbar (maybe also in update_download_info)
 

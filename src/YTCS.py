@@ -154,13 +154,13 @@ class Downloader:
                     video_path = video_stream.download(save_directory, video_savenames[list_itemcounter] + ".mp4", skip_existing=True)
                     video_paths.append(video_path)
                 except pytube.exceptions.VideoUnavailable:
-                    self.logger.warning(f"Video [{links[x]}] is regional unavailable")
+                    self.logger.warning(f"YTCS - downloadVideo : Video [{links[x]}] is regional unavailable")
                     self.callback("video unavailable") #occurs only when regional unavailable?
                     self.warning_count += 1
                     return
                     break
                 except Exception as e:
-                    self.logger.error(e)
+                    self.logger.error(f"YTCS - downloadVideo : {e}")
                     self.error_count += 1
                     continue
                 break
@@ -191,8 +191,8 @@ class Downloader:
                     os.remove(file)
                     break
                 except Exception as e:
-                    self.logger.warning(f"{file} could not be deleted")
-                    self.logger.error(e)
+                    self.logger.warning(f"YTCS - deleteMP4 : {file} could not be deleted")
+                    self.logger.error(f"YTCS - deleteMP4 : {e}")
                     self.error_count += 1
                     self.not_deleted_files += 1
                     pass
@@ -267,7 +267,7 @@ class Downloader:
                 self.deleteMP4(audio_directory)
 
         else:
-            self.logger.warning(f"{url} was not a downloadable source")
+            self.logger.warning(f"YTCS - download_url : {url} was not a downloadable source")
             self.callback("url error")
             return
 

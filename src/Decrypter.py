@@ -19,7 +19,7 @@ def decrypt_frame(frame, data_width, data_height, pix_size, compression_err):
                 binary += "0"
             else:
                 empty_pixel +=1
-    logger.info("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
+    logger.info(f"Decrypter - decrypt_frame : {empty_pixel} pixel had no data or where not identifed as black or white")
     return binary
 
 def decrypt_first_frame(frame, width, compression_err):
@@ -39,7 +39,7 @@ def decrypt_first_frame(frame, width, compression_err):
                 binary += "0"
             else:
                 empty_pixel +=1
-    logger.info("{} pixel had no data or where not identifed as black or white".format(empty_pixel))
+    logger.info(f"Decrypter - decrypt_first_frame : {empty_pixel} pixel had no data or where not identifed as black or white")
 
     indices = [0,8,12,62]
     b_fps, b_pix_size, b_file_extension, b_file_name = [binary[i:j] for i,j in zip(indices, indices[1:]+[None])]
