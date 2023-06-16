@@ -26,6 +26,9 @@ class MainWindow(QMainWindow):
         self.toolButton_dow_choose_dir.clicked.connect(self.choose_save_dir)
         self.pushButton_download.clicked.connect(self.start_download)
         self.lineEdit_url.textChanged.connect(self.check_url)
+        #Convert Tab
+        self.toolButton_con_choose_files.clicked.connect(self.choose_file)
+        self.pushButton_con_convert.clicked.connect(self.start_convert)
 
     def choose_save_dir(self):
         dir = QFileDialog.getExistingDirectory(self, "Choose Save Directory", hell.get_work_dir())
@@ -45,6 +48,9 @@ class MainWindow(QMainWindow):
             self.lineEdit_dec_file_dir.setText(dir[0])
         elif self.tabWidget_container.currentIndex() == 2: #download
             ...
+        elif self.tabWidget_container.currentIndex() == 3: #convert
+            dir = QFileDialog.getOpenFileNames(self, "Choose Files", hell.get_work_dir(), "*.mp4")
+            self.lineEdit_con_file_dir.setText(";".join(dir[0]))
 
     def encryption_finished(self, msg):
         if msg == "finished":
@@ -134,6 +140,9 @@ class MainWindow(QMainWindow):
             download_thread.start()
             self.pushButton_download.setText("Downloading...")
             self.pushButton_download.setEnabled(False)
+
+    def start_convert(self):
+        paths = self.lineEdit_con_file_dir.text().split(";")
 
     def check_url(self):
         url = self.lineEdit_url.text()
